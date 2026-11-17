@@ -211,6 +211,111 @@
         520,
         0
       ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "is-spam",
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "spam",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "spam?",
+      "name": "Spam?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        780,
+        0
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "ignore-spam",
+      "name": "Ignore spam",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1GPGb-YZMMLRXBDps8nFm4_raYFQHMDmpxohljkDLdWY"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "log-lead-in-sheet",
+      "name": "Log lead in Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1040,
+        60
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "googleSheetsLeadTriage",
+          "name": "Google Sheets (lead triage)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "operation": "create",
+        "emailType": "text",
+        "subject": "={{ $('Lead row').item.json.reply_subject }}",
+        "message": "={{ $('Lead row').item.json.reply_draft }}",
+        "options": {
+          "sendTo": "={{ $('Lead row').item.json.email }}"
+        }
+      },
+      "id": "draft-reply-in-gmail",
+      "name": "Draft reply in Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1300,
+        60
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "gmailLeadTriage",
+          "name": "Gmail (lead triage)"
+        }
+      }
     }
   ],
   "connections": {
@@ -241,6 +346,46 @@
         [
           {
             "node": "Lead row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead row": {
+      "main": [
+        [
+          {
+            "node": "Spam?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spam?": {
+      "main": [
+        [
+          {
+            "node": "Ignore spam",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log lead in Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log lead in Sheet": {
+      "main": [
+        [
+          {
+            "node": "Draft reply in Gmail",
             "type": "main",
             "index": 0
           }

@@ -1,0 +1,46 @@
+{
+  "total": 3,
+  "correct": 3,
+  "seconds": 10,
+  "results": [
+    {
+      "execution": 95,
+      "status": "success",
+      "name": "Георги Стоянов",
+      "expected": "team_order",
+      "got": "team_order",
+      "priority": "hot",
+      "language": "bg",
+      "estimated_cards": 45,
+      "summary": "Georgi Stoyanov from Stoyanov Imoti, a real estate agency with 45 brokers, wants gold cards delivered by early December and asks about a volume discount.",
+      "reply_subject": "Запитване за 45 карти за брокери, Стоянов Имоти",
+      "reply_draft": "Здравейте, Георги,\n\nБлагодарим Ви за запитването от Стоянов Имоти. За 45 карти работим с екипна поръчка, а оферта с отстъпка за количество ще Ви изпратим в рамките на един работен ден.\n\nЗлатният метален модел е част от нашата гама, а точната цена за 45 броя ще видите в офертата. Доставката в ЕС отнема 5-7 работни дни, затова срока до началото на декември ще проверим заедно при потвърждението.\n\nЗа да подготвим офертата, моля отговорете на два въпроса: предпочитате ли златен метал или друг вариант и имате ли готов файл с логото на агенцията?\n\nПоздрави,\nЕкипът на Discard"
+    },
+    {
+      "execution": 96,
+      "status": "success",
+      "name": "Ivan Georgiev",
+      "expected": "single_order",
+      "got": "single_order",
+      "priority": "warm",
+      "language": "en",
+      "estimated_cards": 1,
+      "summary": "Ivan Georgiev, an individual, wants to know the price of one Black metal card and whether it includes the digital profile.",
+      "reply_subject": "Your Black metal Discard card",
+      "reply_draft": "Hi Ivan,\n\nThank you for reaching out. A Black metal card costs 44.90 EUR. Every card includes the NFC chip and a digital profile, so the card price covers both. The digital profile is 19.90 EUR per year after checkout.\n\nLogo printing or engraving is free, and shipping within the EU takes 5-7 business days.\n\nIf you would like to go ahead, you can order at https://discard.bg. If you have any other questions, write to contact@discard.bg.\n\nThe Discard team"
+    },
+    {
+      "execution": 97,
+      "status": "success",
+      "name": "SEO Rank Pro",
+      "expected": "spam",
+      "got": "spam",
+      "priority": "cold",
+      "language": "en",
+      "estimated_cards": 0,
+      "summary": "SEO Rank Pro is offering search ranking and backlink services, which is unrelated to buying or using Discard cards.",
+      "reply_subject": "",
+      "reply_draft": ""
+    }
+  ]
+}

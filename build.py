@@ -218,7 +218,7 @@ if not NO_GOOGLE:
             [1040, 60],
             {
                 "operation": "append",
-                "documentId": {"__rl": True, "mode": "id", "value": "SHEET_ID"},
+                "documentId": {"__rl": True, "mode": "id", "value": "1GPGb-YZMMLRXBDps8nFm4_raYFQHMDmpxohljkDLdWY"},
                 "sheetName": {"__rl": True, "mode": "name", "value": "Leads"},
                 "columns": {
                     "mappingMode": "autoMapInputData",
@@ -237,6 +237,8 @@ if not NO_GOOGLE:
             [1300, 60],
             {
                 "resource": "draft",
+                "operation": "create",
+                "emailType": "text",
                 "subject": "={{ $('Lead row').item.json.reply_subject }}",
                 "message": "={{ $('Lead row').item.json.reply_draft }}",
                 "options": {"sendTo": "={{ $('Lead row').item.json.email }}"},
