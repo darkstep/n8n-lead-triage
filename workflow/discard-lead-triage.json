@@ -1,0 +1,257 @@
+{
+  "id": "discardLeadTriage",
+  "name": "Discard lead triage (Claude + Google Sheets + Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Discard NFC cards: ask for an offer",
+        "formDescription": "Tell us what you need and we reply within one business day.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Company"
+            },
+            {
+              "fieldLabel": "How many cards?",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1"
+                  },
+                  {
+                    "option": "2-4"
+                  },
+                  {
+                    "option": "5-20"
+                  },
+                  {
+                    "option": "21-100"
+                  },
+                  {
+                    "option": "100+"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Message",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "path": "discard-lead",
+          "appendAttribution": false,
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Thank you. We received your request and will reply by email."
+            }
+          }
+        }
+      },
+      "id": "lead-form",
+      "name": "Lead form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "discard-lead-form"
+    },
+    {
+      "parameters": {
+        "text": "=Name: {{ $json.Name }}\nEmail: {{ $json.Email }}\nCompany: {{ $json.Company }}\nCards wanted (form dropdown): {{ $json['How many cards?'] }}\nMessage:\n{{ $json.Message }}",
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"team_order\",\n        \"single_order\",\n        \"design_request\",\n        \"support\",\n        \"partnership\",\n        \"spam\"\n      ]\n    },\n    \"priority\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"hot\",\n        \"warm\",\n        \"cold\"\n      ]\n    },\n    \"language\": {\n      \"type\": \"string\",\n      \"description\": \"ISO 639-1 code of the language the message text is written in, e.g. bg, en, de\"\n    },\n    \"estimated_cards\": {\n      \"type\": \"number\",\n      \"description\": \"Best estimate of how many cards they want, 0 if unknown\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"One sentence in English: who they are and what they want\"\n    },\n    \"reply_subject\": {\n      \"type\": \"string\",\n      \"description\": \"Email subject for the reply, in the lead's language\"\n    },\n    \"reply_draft\": {\n      \"type\": \"string\",\n      \"description\": \"The reply email body, following the rules\"\n    }\n  },\n  \"required\": [\n    \"category\",\n    \"priority\",\n    \"language\",\n    \"estimated_cards\",\n    \"summary\",\n    \"reply_subject\",\n    \"reply_draft\"\n  ]\n}",
+        "options": {
+          "systemPromptTemplate": "You triage inbound leads for Discard (discard.bg), a Bulgarian company that sells NFC business cards with a digital profile.\n\nFacts you may use (never invent others):\n- Metal cards: Black, Silver, Rose Gold, Gold at 44.90 EUR each; White Metal 49.90 EUR.\n- Wood cards: Dark Wood (walnut), Light Wood, Maple at 39.90 EUR each.\n- Every card includes the NFC chip and a digital profile; the profile is 19.90 EUR per year after checkout. Logo printing or engraving is free.\n- A digital profile without a card is 19.90 EUR per year. A card without a profile (chip opens the customer's own URL) costs the card price, no subscription.\n- Orders of 5 or more cards are team orders: the team prepares a custom quote with a volume discount on the cards. Never quote a team price yourself.\n- Custom card designs are always possible. Shipping takes 5-7 business days in the EU, 7-14 elsewhere.\n- Order online at https://discard.bg or ask for a quote at contact@discard.bg.\n\nCategories:\n- team_order: a company or group wants 5 or more cards.\n- single_order: one person wants 1-4 cards or asks prices for themselves.\n- design_request: wants us to design the card or asks what a custom design looks like.\n- support: an existing customer with a problem (order status, profile edit, card not scanning).\n- partnership: reseller, agency, supplier, media or collaboration offer.\n- spam: SEO/marketing pitches, link offers, gibberish, or anything unrelated to buying or using Discard.\n\nPriority:\n- hot: team_order, or a clear intent to buy now (dates, quantities, budget, logo ready).\n- warm: genuine interest without urgency, design requests, partnership offers that fit.\n- cold: vague questions, support, or low fit.\n\nThe reply draft:\n- Write in the language the message itself is written in, never one guessed from the sender's name, company or country. Write as \"we\", never \"I\". In Bulgarian use the polite form and capitalise every form of it, mid-sentence too: Вие, Вас, Ви, Ваш, Вашия, Вашата, Вашето, Вашите (\"Вашия сайт\", \"логото Ви\").\n- 60-140 words, plain text, no markdown, no emoji, no em dashes.\n- Answer what they asked using only the facts above, then one clear next step.\n- If they ask about anything the facts do not cover (wholesale chips, blank cards, reseller terms, integrations, exact team prices), do not say yes or no: say the team will reply with the details.\n- Team orders: ask for quantity, material and whether they have a logo file, and say a quote follows within one business day.\n- Sign off exactly as \"Екипът на Discard\" in Bulgarian or \"The Discard team\" in other languages. Never use a personal name.\n- For spam, reply_draft is an empty string."
+        }
+      },
+      "id": "classify-and-draft-reply",
+      "name": "Classify and draft reply",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-5-5"
+        },
+        "options": {
+          "maxTokensToSample": 2048,
+          "temperature": 0
+        }
+      },
+      "id": "claude-haiku",
+      "name": "Claude Haiku",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.6,
+      "position": [
+        260,
+        220
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "id": "anthropicLeadTriage",
+          "name": "Anthropic (lead triage)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "received_at",
+              "name": "received_at",
+              "value": "={{ $now.setZone('Europe/Sofia').toFormat('yyyy-MM-dd HH:mm') }}",
+              "type": "string"
+            },
+            {
+              "id": "name",
+              "name": "name",
+              "value": "={{ $('Lead form').item.json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "email",
+              "name": "email",
+              "value": "={{ $('Lead form').item.json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "company",
+              "name": "company",
+              "value": "={{ $('Lead form').item.json.Company }}",
+              "type": "string"
+            },
+            {
+              "id": "cards_form",
+              "name": "cards_form",
+              "value": "={{ $('Lead form').item.json['How many cards?'] }}",
+              "type": "string"
+            },
+            {
+              "id": "message",
+              "name": "message",
+              "value": "={{ $('Lead form').item.json.Message }}",
+              "type": "string"
+            },
+            {
+              "id": "category",
+              "name": "category",
+              "value": "={{ $json.output.category }}",
+              "type": "string"
+            },
+            {
+              "id": "priority",
+              "name": "priority",
+              "value": "={{ $json.output.priority }}",
+              "type": "string"
+            },
+            {
+              "id": "language",
+              "name": "language",
+              "value": "={{ $json.output.language }}",
+              "type": "string"
+            },
+            {
+              "id": "estimated_cards",
+              "name": "estimated_cards",
+              "value": "={{ $json.output.estimated_cards }}",
+              "type": "number"
+            },
+            {
+              "id": "summary",
+              "name": "summary",
+              "value": "={{ $json.output.summary }}",
+              "type": "string"
+            },
+            {
+              "id": "reply_subject",
+              "name": "reply_subject",
+              "value": "={{ $json.output.reply_subject }}",
+              "type": "string"
+            },
+            {
+              "id": "reply_draft",
+              "name": "reply_draft",
+              "value": "={{ $json.output.reply_draft }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lead-row",
+      "name": "Lead row",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        520,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Lead form": {
+      "main": [
+        [
+          {
+            "node": "Classify and draft reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Haiku": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify and draft reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify and draft reply": {
+      "main": [
+        [
+          {
+            "node": "Lead row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Sofia"
+  },
+  "active": false,
+  "pinData": {}
+}
